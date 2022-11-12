@@ -1,0 +1,64 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+  background: #16000a;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  color: #ffdada;
+}
+.webgl {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  outline: none;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  /*border: 8px solid;*/
+  inset: 1rem;
+  z-index: 100;
+  pointer-events: none;
+}
+
+ul {
+  position: absolute;
+  top: 10vh;
+  left: 2.5rem;
+  right: 1rem;
+  text-align: center;
+  font-family: ador-hairline, sans-serif;
+  font-weight: 900;
+  font-size: max(1rem, 3vh);
+}
+
+button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 12vh;
+  width: 12vh;
+  transform: translateY(2vh);
+  right: 0;
+  margin: auto;
+  -webkit-appearance: none;
+  background: transparent;
+  color: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+svg {
+  width: 3.5vh;
+}

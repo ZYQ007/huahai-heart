@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>阿瑟我来了</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- partial:index.partial.html -->
+    <canvas class="webgl"></canvas>
+    <!-- LRC歌词 -->
+    <audio src="./huahai.mp3" id="auo"></audio>
+    <textarea id="lrc_content" cols="30" style="display: none">
+        [ti:花海]
+        [ar:周杰伦]
+        [00:03.63]花海
+          [00:06.35]周杰伦
+          [00:14.49]...
+        [00:18.56]...
+        [00:26.90]静止了 所有的花开
+          [00:33.31]遥远了 清晰了爱
+          [00:39.53]情侣们 爱却更喜欢
+          [00:45.99]那时候 我不懂 这场爱
+          [00:51.55]
+        [00:52.50]你喜欢 站在那窗台
+          [00:58.47]你好久 都没再来
+          [01:05.12]彩色的 世界染上空白
+          [01:12.18]是你流的泪晕开
+          [01:16.14]
+        [01:17.26]不要你离开 距离隔不开
+          [01:23.65]思念变成海 在窗外进不来
+          [01:29.82]原谅说太快 爱成了阻碍
+          [01:36.24]手中的风筝放太快回不来
+          [01:42.22]
+        [01:42.74]不要你离开 泪已化不开
+          [01:48.96]经历的阻碍 我在等待重来
+          [01:55.51]天空仍灿烂 她爱着大海
+          [02:01.79]情歌被打败 爱已不存在
+          [02:09.83]
+        [02:34.80]你喜欢 站在那窗台
+          [02:41.14]你好久 都没再来
+          [02:47.40]彩色的 世界染上空白
+          [02:54.66]是你流的泪晕开
+          [02:59.87]
+        [03:00.24]不要你离开 距离隔不开
+          [03:05.75]思念变成海 在窗外进不来
+          [03:12.16]原谅说太快 爱成了阻碍
+          [03:18.56]手中的风筝放太快回不来
+          [03:24.53]
+        [03:25.07]不要你离开 泪已化不开
+          [03:31.37]经历的阻碍 我在等待重来
+          [03:37.81]天空仍灿烂 她爱着大海
+          [03:44.12]情歌被打败 爱已不存在
+          [03:54.85]</textarea>
+
+    <ul id="lyric">
+<!--        <li>花海</li>-->
+    </ul>
+    <button id="play-music" type="button" aria-label="Play music">
+        <svg fill="currentColor" viewBox="0 0 512 512" width="100" title="music">
+            <path d="M470.38 1.51L150.41 96A32 32 0 0 0 128 126.51v261.41A139 139 0 0 0 96 384c-53 0-96 28.66-96 64s43 64 96 64 96-28.66 96-64V214.32l256-75v184.61a138.4 138.4 0 0 0-32-3.93c-53 0-96 28.66-96 64s43 64 96 64 96-28.65 96-64V32a32 32 0 0 0-41.62-30.49z" />
+        </svg>
+    </button>
+    <script type="x-shader/x-vertex" id="vertexShader">
+        #define M_PI 3.1415926535897932384626433832795
+        uniform float uTime;
+        uniform float uSize;
+        attribute float aScale;
+        attribute vec3 aColor;
+        attribute float random;
+        attribute float random1;
+        attribute float aSpeed;
+        varying vec3 vColor;
+        varying vec2 vUv;
+
+        void main() {
+        float sign = 2.0* (step(random, 0.5) -.5);
+        float t = sign*mod(-uTime *  aSpeed* 0.005  + 10.0*aSpeed*aSpeed, M_PI);
+        float a = pow(t, 2.1) * pow((t - sign * M_PI), 2.3);
+        float radius = 0.14;
+        vec3 myOffset =
+        vec3(t,  t, 0.0);
+        myOffset = vec3(radius *16.0 * pow(sin(t), 2.0) * sin(t), radius *                                           (13.0 * cos(t) - 5.0 * cos(2.0 * t) - 2.0 * cos(3.0 * t) - cos(4.0 * t)), .15*(a*(random1 - .5))*sin(abs(10.0*(sin(.2*uTime + .2*random)))*t));
+        vec3 displacedPosition = myOffset;
+        vec4 modelPosition = modelMatrix * vec4(displacedPosition.xyz, 1.0);
+
+        vec4 viewPosition = viewMatrix * modelPosition;
+        viewPosition.xyz += position * aScale * uSize * pow(a, .5) * .5;
+        gl_Position = projectionMatrix * viewPosition;
+
+        vColor = aColor;
+        vUv = uv;
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentShader">
+        varying vec3 vColor;
+        varying vec2 vUv;
+
+        void main() {
+        vec2 uv = vUv;
+        vec3 color = vColor;
+        float strength = distance(uv, vec2(0.5));
+        strength *= 2.0;
+        strength = 1.0 - strength;
+        gl_FragColor = vec4(strength * color, 1.0);
+        }
+    </script>
+    <script type="x-shader/x-vertex" id="vertexShader1">
+        #define M_PI 3.1415926535897932384626433832795
+
+
+        uniform float uTime;
+        uniform float uSize;
+        attribute float aScale;
+        attribute vec3 aColor;
+        attribute float phi;
+        attribute float random;
+        attribute float random1;
+        varying vec3 vColor;
+        varying vec2 vUv;
+
+        void main() {
+        float t = 0.01 * uTime + 12.0;
+        float angle = phi;
+
+        t = mod((-uTime + 100.0) * 0.06* random1 + random *2.0 * M_PI , 2.0 * M_PI);
+        vec3 myOffset = vec3(5.85*cos(angle * (t )), 2.0*(t - M_PI), 3.0*sin(angle * (t )/t));
+        vec4 modelPosition = modelMatrix * vec4(myOffset, 1.0);
+        vec4 viewPosition = viewMatrix * modelPosition;
+        viewPosition.xyz += position * aScale * uSize;
+        gl_Position = projectionMatrix * viewPosition;
+
+        vColor = aColor;
+        vUv = uv;
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentShader1">
+        uniform sampler2D uTex;
+        varying vec3 vColor;
+        varying vec2 vUv;
+
+        void main() {
+        vec2 uv = vUv;
+        vec3 color = vColor;
+        float strength = distance(uv, vec2(0.5, .65));
+        strength *= 2.0;
+        strength = 1.0 - strength;
+        vec3 texture = texture2D(uTex, uv).rgb;
+        gl_FragColor = vec4(texture * color * (strength + .3), 1.);
+        }
+    </script>
+    <!-- partial -->
+
+    <script type="module" src="./script.js"></script>
+    <script>
+        var lrc = document.getElementById("lrc_content").innerHTML;
+        var oLRC = {
+            ti: "", //歌曲名
+            ar: "", //演唱者
+            al: "", //专辑名
+            by: "", //歌词制作人
+            offset: 0, //时间补偿值，单位毫秒，用于调整歌词整体位置
+            ms: [] //歌词数组{t:时间,c:歌词}
+        };
+
+        function createLrcObj(lrc) {
+            if(lrc.length==0) return;
+            var lrcs = lrc.split('\n');//用回车拆分成数组
+            for(var i in lrcs) {//遍历歌词数组
+                lrcs[i] = lrcs[i].replace(/(^\s*)|(\s*$)/g, ""); //去除前后空格
+                var t = lrcs[i].substring(lrcs[i].indexOf("[") + 1, lrcs[i].indexOf("]"));//取[]间的内容
+                var s = t.split(":");//分离:前后文字
+                if(isNaN(parseInt(s[0]))) { //不是数值
+                    for (var i in oLRC) {
+                        if (i != "ms" && i == s[0].toLowerCase()) {
+                            oLRC[i] = s[1];
+                        }
+                    }
+                }else { //是数值
+                    var arr = lrcs[i].match(/\[(\d+:.+?)\]/g);//提取时间字段，可能有多个
+                    var start = 0;
+                    for(var k in arr){
+                        start += arr[k].length; //计算歌词位置
+                    }
+                    var content = lrcs[i].substring(start);//获取歌词内容
+                    for (var k in arr){
+                        var t = arr[k].substring(1, arr[k].length-1);//取[]间的内容
+                        var s = t.split(":");//分离:前后文字
+                        oLRC.ms.push({//对象{t:时间,c:歌词}加入ms数组
+                            t: (parseFloat(s[0])*60+parseFloat(s[1])).toFixed(3),
+                            c: content
+                        });
+                    }
+                }
+            }
+            oLRC.ms.sort(function (a, b) {//按时间顺序排序
+                return a.t-b.t;
+            });
+            //歌词滚动效果
+            // function showLRC() {
+            //     var s="";
+            //     for(var i in oLRC.ms){//遍历ms数组，把歌词加入列表
+            //         s+='<li>'+oLRC.ms[i].c+'</li>';
+            //     }
+            //     document.getElementById("lyric").innerHTML = s;
+            //     console.log(s)
+            // }
+            // showLRC();
+        }
+
+        createLrcObj(lrc);
+
+
+        var lineNo = 0; //当前行
+        var audio = document.getElementById("auo");//播放器
+
+        //滚回到开头，用于播放结束时
+        function goback() {
+            // document.getElementById('lyric').innerText = '花海'
+            lineNo = 0;
+        }
+
+        //监听播放器的timeupdate事件，实现文字与音频播放同步
+        audio.ontimeupdate = function () {
+            if(lineNo==oLRC.ms.length)
+                return;
+            var curTime = audio.currentTime; //播放器时间
+            if(parseFloat(oLRC.ms[lineNo].t)<=curTime){
+                //歌词切换效果
+                document.getElementById('lyric').innerText = oLRC.ms[lineNo].c
+                lineNo++;
+            }
+        };
+
+        //监听播放器的ended事件，播放结束时回滚歌词
+        audio.onended = function () {
+            goback(); //回滚歌词
+        };
+
+    </script>
+</body>
+</html>
